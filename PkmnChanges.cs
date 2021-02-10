@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace pkgameScript
 {
-    class Pkmn
+    class PkmnChanges
     {
         public string Dex_no { get; set; }
         public string Name { get; set; }
@@ -16,9 +16,10 @@ namespace pkgameScript
         public List<EVs> Evs { get; set; }
         public List<PkmnType> Type { get; set; }
         public List<string> Moves { get; set; }
+        public List<string> Held_Items { get; set; }
         public List<LevelUp> Level_Up { get; set; }
 
-        public Pkmn()
+        public PkmnChanges()
         {
             this.Level_Up = new List<LevelUp>();
         }
@@ -44,26 +45,29 @@ namespace pkgameScript
 
     class LevelUp
     {
-        public int Level { get; set; }
-        public string Move { get; set; }
         public string Form { get; set; }
+        public List<Learnset> Learnset { get; set; }
 
         public LevelUp()
         {
+            Learnset = new List<Learnset>();
+        }
+    }
+
+    class Learnset
+    {
+        public int Level { get; set; }
+        public string Move { get; set; }
+
+        public Learnset()
+        {
 
         }
 
-        public LevelUp(int level, string move)
+        public Learnset(int level, string move)
         {
             Level = level;
             Move = move;
-        }
-
-        public LevelUp(int level, string move, string form)
-        { 
-            Level = level;
-            Move = move;
-            Form = form;
         }
     }
 

@@ -40,8 +40,9 @@
     <Folder Include="files\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Pkmn.cs" />
+    <Compile Include="PkmnChanges.cs" />
     <Compile Include="Script.cs" />
+    <Compile Include="TrainerChanges.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
