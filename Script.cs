@@ -279,7 +279,7 @@ namespace pkgameScript
                                 changes.Location = line.Trim();
                                 break;
                             case TrainerSection.Trainer:
-                                string[] info = line.Split(new string[] { "    "}, StringSplitOptions.None);
+                                string[] info = line.Split(new string[] { "  "}, StringSplitOptions.None);
                                 string[] pkmnInfo = info[info.Length - 1].Split(',');
                                 trainer = new Trainer()
                                 {
