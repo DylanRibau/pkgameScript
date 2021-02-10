@@ -32,6 +32,7 @@ namespace pkgameScript
 
     class Trainer
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public List<Pkmn> Roster { get; set; }
 

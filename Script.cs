@@ -283,6 +283,7 @@ namespace pkgameScript
                                 string[] pkmnInfo = info[info.Length - 1].Split(',');
                                 trainer = new Trainer()
                                 {
+                                    Id = Guid.NewGuid(),
                                     Name = info[0]
                                 };
 
@@ -338,6 +339,7 @@ namespace pkgameScript
                                     changes.TrainersDetailed = new List<Trainer>();
                                     trainer = new Trainer()
                                     {
+                                        Id = Guid.NewGuid(),
                                         Name = line.Trim()
                                     };
                                 }
