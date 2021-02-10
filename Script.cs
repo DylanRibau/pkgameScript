@@ -290,7 +290,7 @@ namespace pkgameScript
                                 foreach(var i in pkmnInfo)
                                 {
                                     string[] pkmn = i.Split(new string[] { "Lv." }, StringSplitOptions.None);
-                                    trainer.Roster.Add(new Pkmn() { Name = pkmn[0].Trim(), Level = int.Parse(pkmn[1].Trim())});
+                                    trainer.Roster.Add(new Pkmn() { Id = Guid.NewGuid(), Name = pkmn[0].Trim(), Level = int.Parse(pkmn[1].Trim())});
                                 }
 
                                 if (!extraFlag)
@@ -304,7 +304,10 @@ namespace pkgameScript
                                 break;
                             case TrainerSection.TrainerDetailed:
                                 string[] detailedInfo = line.Split('/');
-                                Pkmn pokemon = new Pkmn();
+                                Pkmn pokemon = new Pkmn()
+                                {
+                                    Id = Guid.NewGuid()
+                                };
                                 pokemon.Name = detailedInfo[0].Substring(0, detailedInfo[0].IndexOf('('));
                                 pokemon.Level = int.Parse(detailedInfo[0].Substring(detailedInfo[0].IndexOf('(') + 1, detailedInfo[0].IndexOf(')') - detailedInfo[0].IndexOf('(') - 1).Replace("Lv.", "").Trim());
                                 pokemon.Held_Item = detailedInfo[0].Substring(detailedInfo[0].IndexOf('@')).Trim();

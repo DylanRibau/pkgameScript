@@ -44,6 +44,7 @@ namespace pkgameScript
 
     public class Pkmn
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public int Level { get; set; }
         public string Held_Item { get; set; }
