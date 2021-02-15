@@ -14,17 +14,21 @@ namespace pkgameScript
         {
             Console.Write("File name: ");
             //string fileName = Console.ReadLine();
-            string fileName = "TrainerPokemon";
+            //string fileName = "TrainerPokemon";
+            string fileName = "WildPokemon";
 
-            Console.WriteLine("Press q for Pokemon Changes file, w for Trainer Changes");
+            Console.WriteLine("Press q for Pokemon Changes file, t for Trainer Changes, w for Wild Pokemon Changes");
             string fileType = Console.ReadLine();
 
             if(fileType == "q")
             {
                 PkmnChanges(fileName);
-            } else if (fileType == "w")
+            } else if (fileType == "t")
             {
                 TrainerChanges(fileName);
+            } else if (fileType == "w")
+            {
+                WildChanges(fileName);
             }
 
         }
@@ -260,6 +264,11 @@ namespace pkgameScript
                     {
                         if (line.Trim() == "")
                         {
+                            if(section == TrainerSection.TrainerDetailed)
+                            {
+                                changes.TrainersDetailed.Add(trainer);
+                            }
+
                             section = TrainerSection.Blank;
                             if (extraFlag)
                             {
@@ -310,7 +319,7 @@ namespace pkgameScript
                                 };
                                 pokemon.Name = detailedInfo[0].Substring(0, detailedInfo[0].IndexOf('('));
                                 pokemon.Level = int.Parse(detailedInfo[0].Substring(detailedInfo[0].IndexOf('(') + 1, detailedInfo[0].IndexOf(')') - detailedInfo[0].IndexOf('(') - 1).Replace("Lv.", "").Trim());
-                                pokemon.Held_Item = detailedInfo[0].Substring(detailedInfo[0].IndexOf('@')).Trim();
+                                pokemon.Held_Item = detailedInfo[0].Substring(detailedInfo[0].IndexOf('@') + 1).Trim();
                                 pokemon.Nature = detailedInfo[1].Trim();
                                 pokemon.Ability = detailedInfo[2].Trim();
                                 string[] moves = detailedInfo[3].Split(',');
@@ -319,6 +328,7 @@ namespace pkgameScript
                                 {
                                     pokemon.Moveset.Add(i.Trim());
                                 }
+                                trainer.Roster.Add(pokemon);
                                 break;
                             case TrainerSection.Blank:
                                 if (sr.Peek() == '=')
@@ -339,15 +349,14 @@ namespace pkgameScript
                                 } else
                                 {
                                     section = TrainerSection.TrainerDetailed;
-                                    changes.TrainersDetailed = new List<Trainer>();
+                                    if(changes.TrainersDetailed == null)
+                                        changes.TrainersDetailed = new List<Trainer>();
                                     trainer = new Trainer()
                                     {
                                         Id = Guid.NewGuid(),
                                         Name = line.Trim()
                                     };
                                 }
-                                break;
-                            default:
                                 break;
                         }
                         
@@ -358,6 +367,93 @@ namespace pkgameScript
 
                 Export("Trainer Changes", trainerChanges);
             } 
+            catch (IOException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private static void WildChanges(string fileName)
+        {
+            try
+            {
+                List<WildChanges> wildChanges = new List<WildChanges>();
+                using (var sr = new StreamReader($"{fileName}.txt"))
+                {
+                    string line;
+                    WildPokemonSection section = WildPokemonSection.Route;
+                    WildChanges changes = new WildChanges();
+
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if(line.Trim() == "")
+                        {
+                            section = WildPokemonSection.Blank;
+                        } else if (line.StartsWith("="))
+                        {
+                            section = WildPokemonSection.WildPokemon;
+                            continue;
+                        }
+
+                        switch (section)
+                        {
+                            case WildPokemonSection.Blank:
+                                wildChanges.Add(changes);
+                                changes = new WildChanges();
+                                section = WildPokemonSection.Route;
+                                break;
+                            case WildPokemonSection.Route:
+                                changes.Route = line.Trim();
+                                if(sr.Peek() != '=')
+                                {
+                                    section = WildPokemonSection.LevelRanges;
+                                }
+                                break;
+                            case WildPokemonSection.LevelRanges:
+                                if (changes.LevelRanges == null)
+                                    changes.LevelRanges = new List<LvlRange>();
+                                string[] lvlranges = line.Substring(7).Split(',');
+                                foreach(var range in lvlranges)
+                                {
+                                    if (range.Contains("("))
+                                    {
+                                        changes.LevelRanges.Add(new LvlRange()
+                                        {
+                                            Range = range.Substring(0, range.IndexOf('(')).Trim(),
+                                            Method = range.Substring(range.IndexOf('(') + 1).Replace(")", "").Trim()
+                                        });
+                                    } else
+                                    {
+                                        changes.LevelRanges.Add(new LvlRange()
+                                        {
+                                            Range = range.Trim(),
+                                            Method = "Walking"
+                                        });
+                                    }
+                                }
+                                break;
+                            case WildPokemonSection.WildPokemon:
+                                if (changes.RoutePokemon == null)
+                                    changes.RoutePokemon = new List<RoutePokemon>();
+                                RoutePokemon routePokemon = new RoutePokemon();
+                                string[] methodAndWildPokemon = line.Trim().Split(new string[] { "  " }, StringSplitOptions.None);
+                                routePokemon.Method = methodAndWildPokemon[0];
+                                string[] wildPokemon = methodAndWildPokemon[methodAndWildPokemon.Length - 1].Split(',');
+                                foreach(var pokemon in wildPokemon)
+                                {
+                                    routePokemon.WildPokemon.Add(new WildPokemon() { 
+                                        Pokemon = pokemon.Substring(0, pokemon.IndexOf('(')).Trim(),
+                                        EncounterRate = int.Parse(pokemon.Substring(pokemon.IndexOf('(') + 1, pokemon.IndexOf('%') - 1 - pokemon.IndexOf('(')))
+                                    });
+                                }
+                                changes.RoutePokemon.Add(routePokemon);
+                                break;
+                        }
+                    }
+                }
+
+                Export("Wild Pokemon Changes", wildChanges);
+            }
             catch (IOException e)
             {
                 Console.WriteLine(e.Message);
@@ -395,5 +491,13 @@ namespace pkgameScript
         Location,
         Trainer,
         TrainerDetailed
+    }
+
+    enum WildPokemonSection
+    {
+        Blank,
+        Route,
+        LevelRanges,
+        WildPokemon
     }
 }
