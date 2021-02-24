@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace pkgameScript
@@ -13,23 +14,25 @@ namespace pkgameScript
         public static void Main()
         {
             Console.Write("File name: ");
-            //string fileName = Console.ReadLine();
+            string fileName = Console.ReadLine();
             //string fileName = "TrainerPokemon";
-            string fileName = "WildPokemon";
+            //string fileName = "WildPokemon";
+            //string fileName = "TypeChanges";
 
-            Console.WriteLine("Press q for Pokemon Changes file, t for Trainer Changes, w for Wild Pokemon Changes");
+            Console.WriteLine("Press q for Pokemon Changes file, t for Trainer Changes, w for Wild Pokemon Changes, h for Type Changes");
             string fileType = Console.ReadLine();
 
-            if(fileType == "q")
-            {
+            if (fileType == "q")
                 PkmnChanges(fileName);
-            } else if (fileType == "t")
-            {
+            else if (fileType == "t")
                 TrainerChanges(fileName);
-            } else if (fileType == "w")
-            {
+            else if (fileType == "w")
                 WildChanges(fileName);
-            }
+            else if (fileType == "h")
+                TypeChanges(fileName);
+            
+
+            
 
         }
 
@@ -453,6 +456,57 @@ namespace pkgameScript
                 }
 
                 Export("Wild Pokemon Changes", wildChanges);
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private static void TypeChanges(string fileName)
+        {
+            try
+            {
+                List<TypeChanges> typeChanges = new List<TypeChanges>();
+                using (var sr = new StreamReader($"{fileName}.txt"))
+                {
+                    string line;
+                    RegexOptions options = RegexOptions.None;
+                    Regex regex = new Regex("[ ]{3,}", options);
+
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        TypeChanges changes = new TypeChanges();
+
+                        line = regex.Replace(line.Trim(), "|");
+                        string[] values = line.Split('|');
+                        //0 = dexno + name, 1 = old type, 2 = new type, 3 = justification
+                        changes.Dex_no = values[0].Substring(1, 3);
+                        changes.Name = values[0].Substring(5);
+
+                        string[] oldType = values[1].Split('/');
+                        PkmnType old = new PkmnType();
+                        old.Status = "Old";
+                        old.Type_1 = oldType[0].Trim();
+                        if (oldType.Length > 1)
+                            old.Type_2 = oldType[1].Trim();
+                        changes.Old_Type = old;
+
+                        string[] newType = values[2].Split('/');
+                        PkmnType newT = new PkmnType();
+                        newT.Status = "New";
+                        newT.Type_1 = newType[0].Trim();
+                        if (newType.Length > 1)
+                            newT.Type_2 = newType[1].Trim();
+                        changes.New_Type = newT;
+
+                        changes.Justification = values[3].Trim();
+
+                        typeChanges.Add(changes);
+                    }
+                }
+
+                Export("Type Changes", typeChanges);
             }
             catch (IOException e)
             {
