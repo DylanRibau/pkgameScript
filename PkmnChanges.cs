@@ -103,6 +103,7 @@ namespace pkgameScript
 
     class PkmnType
     {
+        public Guid Id { get; set; }
         public string Status { get; set; }
         public string Type_1 { get; set; }
         public string Type_2 { get; set; }

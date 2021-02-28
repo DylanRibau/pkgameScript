@@ -476,7 +476,10 @@ namespace pkgameScript
 
                     while ((line = sr.ReadLine()) != null)
                     {
-                        TypeChanges changes = new TypeChanges();
+                        TypeChanges changes = new TypeChanges()
+                        {
+                            Id = Guid.NewGuid()
+                        };
 
                         line = regex.Replace(line.Trim(), "|");
                         string[] values = line.Split('|');
@@ -485,7 +488,10 @@ namespace pkgameScript
                         changes.Name = values[0].Substring(5);
 
                         string[] oldType = values[1].Split('/');
-                        PkmnType old = new PkmnType();
+                        PkmnType old = new PkmnType()
+                        {
+                            Id = Guid.NewGuid()
+                        };
                         old.Status = "Old";
                         old.Type_1 = oldType[0].Trim();
                         if (oldType.Length > 1)
@@ -493,7 +499,10 @@ namespace pkgameScript
                         changes.Old_Type = old;
 
                         string[] newType = values[2].Split('/');
-                        PkmnType newT = new PkmnType();
+                        PkmnType newT = new PkmnType()
+                        {
+                            Id = Guid.NewGuid()
+                        };
                         newT.Status = "New";
                         newT.Type_1 = newType[0].Trim();
                         if (newType.Length > 1)

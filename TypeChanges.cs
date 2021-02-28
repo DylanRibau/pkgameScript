@@ -8,6 +8,7 @@ namespace pkgameScript
 {
     class TypeChanges
     {
+        public Guid Id { get; set; }
         public string Dex_no { get; set; }
         public string Name { get; set; }
         public PkmnType Old_Type { get; set; }
